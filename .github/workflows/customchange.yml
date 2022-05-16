@@ -1,4 +1,4 @@
-name: customchange2
+name: customchange
 
 on:
   pull_request:
