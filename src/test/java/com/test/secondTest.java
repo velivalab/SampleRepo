@@ -30,6 +30,18 @@ public class secondTest {
 		throw new SkipException("skipped");
 	}
 	
+	@Test
+	public void multiplyTest() {
+		//This test will check the multiply functionality of the test
+		assertTrue("Sum function not working fine.", calculator.multiply(10, 20) == 200);
+	}
+	
+	@Test
+	public void devideTest() throws Exception {
+		//This test will check the multiply functionality of the test
+		assertTrue("Sum function not working fine.", calculator.divide(20, 10) == 2);
+	}
+	
 	@Test 
 	public void testAdd()
     {
