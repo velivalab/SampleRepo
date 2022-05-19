@@ -19,12 +19,7 @@ pipeline {
            steps {
               
               //sh 'mvn -B -DskipTests clean compile'
-			sh 'mvn test -DskipTests=true'
-           }
-           post {
-             always {
-                junit "**/target/surefire-reports/*.xml"
-             }
+			sh 'mvn clean install'
            }
        }
        stage('Test &2') {
