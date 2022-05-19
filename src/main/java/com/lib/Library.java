@@ -13,4 +13,10 @@ public class Library {
 
         return c;
     }
+    public int multiply(int a,int b) {
+        int c=0;
+        c=a*b;
+
+        return c;
+    }
 }
