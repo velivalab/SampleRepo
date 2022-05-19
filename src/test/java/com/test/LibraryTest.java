@@ -19,4 +19,11 @@ public class LibraryTest {
         Library classUnderTest = new Library();
         assertTrue("1+2 should be 3", classUnderTest.add(1,2)==3);
     }
+    
+    @Test
+	public void multiplyTest() {
+		Library classUnderTest = new Library();
+        assertTrue("1*2 should be 2", classUnderTest.multiply(1,2)==2);
+		assertTrue("Sum function not working fine.", calculator.multiply(10, 20) == 200);
+	}
 }
