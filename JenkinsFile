@@ -19,7 +19,7 @@ pipeline {
            steps {
               
               //sh 'mvn -B -DskipTests clean compile'
-			sh 'mvn clean install'
+			sh 'mvn clean install -DskipTests=true'
            }
        }
        stage('Test &2') {
