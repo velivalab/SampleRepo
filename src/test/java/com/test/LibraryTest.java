@@ -23,7 +23,6 @@ public class LibraryTest {
     @Test
 	public void multiplyTest() {
 		Library classUnderTest = new Library();
-        assertTrue("1*2 should be 2", classUnderTest.multiply(1,2)==2);
-		assertTrue("Sum function not working fine.", calculator.multiply(10, 20) == 200);
+                assertTrue("1*2 should be 2", classUnderTest.multiply(1,2)==2);
 	}
 }
