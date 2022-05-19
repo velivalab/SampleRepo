@@ -9,6 +9,8 @@ import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
 
+import com.lib.Library;
+
 public class secondTest {
 
 	@Test
@@ -32,14 +34,8 @@ public class secondTest {
 	
 	@Test
 	public void multiplyTest() {
-		//This test will check the multiply functionality of the test
-		assertTrue("Sum function not working fine.", calculator.multiply(10, 20) == 200);
-	}
-	
-	@Test
-	public void devideTest() throws Exception {
-		//This test will check the multiply functionality of the test
-		assertTrue("Sum function not working fine.", calculator.divide(20, 10) == 2);
+		Library classUnderTest = new Library();
+		assertTrue("Sum function not working fine.", classUnderTest.multiply(10, 20) == 200);
 	}
 	
 	@Test 
