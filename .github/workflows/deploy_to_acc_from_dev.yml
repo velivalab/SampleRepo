@@ -1,0 +1,135 @@
+name: deploy_to_acc_from_dev
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:     
+
+   # Description of jobs used in this yaml:
+   # test: Apply Remote Changes for the branch triggering the pipeline to the Test instance.
+   #       Run the Unit Test - ATF Test Suite associated with the app.  If Test Suite fails, developer gets notified. 
+   # publish: If Test Suite succeeds, Application is Published into App Repo.
+   # deploytoacc: Application is then installed into ACC instance from App Repo
+   # merge-dev-main: On successful installation, the code in dev branch is merged into main
+         #git config user.email "action@github.com" : Configure the committer email
+         #git config user.name "GitHub Action" : Configure the committer username
+         #git fetch --all : Fetch commit details from branch to be merged
+         #git checkout main : Checkout main so that we can merge the branch into it
+         #git merge dev -m "<msg>" --no-ff --allow-unrelated-histories : Merge branch with -m for commit message <msg>, 
+                                      #--no-ff for default merge not fastforward merge
+                                      # and --allow-unrelated-histories to merge unrelated branches from local and remote
+         #git push origin main : push the local merge into remote
+   # tag: The commit at this point in time is Tagged with the Application Version
+   # release_report: A release report is then generated and posted into the GIT Repo for Release Management
+   
+  test:
+    if: "contains(github.event.head_commit.message, 'Deploy to ACC')"
+    name: Regression Test
+    runs-on: ubuntu-latest
+       
+    steps:
+       - name: ServiceNow CI/CD Apply Changes
+         uses: ServiceNow/sncicd-apply-changes@2.0.0
+         env:
+          nowUsername: ${{ secrets.SN_USERNAME }}
+          nowPassword: ${{ secrets.SN_PASSWORD }}
+          nowSourceInstance: ${{ secrets.SN_TEST_INSTANCE }}
+          appSysID: ${{ secrets.SN_APP_SYSID }}
+          branch: 'dev'
+
+       - name: ServiceNow CI/CD Run ATF Test Suite
+         uses: ServiceNow/sncicd-tests-run@2.0.0
+         with:
+          testSuiteSysId: ${{ secrets.SN_ATFTESTSUITE_BVT }}
+         env:
+          nowUsername: ${{ secrets.SN_USERNAME }}
+          nowPassword: ${{ secrets.SN_PASSWORD }}
+          nowInstallInstance: ${{ secrets.SN_TEST_INSTANCE }}  
+
+#  instance-scan:
+#    name: Instance Full Scan
+#    runs-on: ubuntu-latest
+#    needs: test
+#    if: ${{success()}}
+    
+#    steps:
+#       - name: ServiceNow CI/CD Instance Scan
+#         uses: ServiceNow/sncicd-instance-scan@2.0.0
+#         id: scan
+#         with:
+  #          scantype: suite_scoped # point, suite_combo, suite_scoped, suite_update
+  #          targetTable: 'x_rdsp_dpp_foobar_dpp_foobar'
+  #          targetSysId: '5cf6ee23db6cb010467df9afaa961903'
+            #comboSysId: <combo_sys_id>
+#           suiteSysId: 344a923f1b74b01007efc912604bcbdf
+#            appScopeSysIds: ${{ secrets.SN_APP_SYSID }}
+            #updateSetSysIds: <update_set_sys_ids_comma_separated>
+ #   env:
+ #          nowUsername: ${{ secrets.SN_USERNAME }}
+ #          nowPassword: ${{ secrets.SN_PASSWORD }}
+ #          nowScanInstance: ${{ secrets.SN_TEST_INSTANCE }}
+    
+  publish:
+       name: Publish to App Repo 
+       runs-on: ubuntu-latest
+       needs: test 
+      
+       steps:
+       - uses: actions/checkout@v2
+       - name: ServiceNow CI/CD Publish App
+         id: publish_app   
+         uses: ServiceNow/sncicd-publish-app@2.0.1
+         with:
+          versionFormat: detect
+       env:
+            nowUsername: ${{ secrets.SN_USERNAME }}
+            nowPassword: ${{ secrets.SN_PASSWORD }}
+            nowSourceInstance: ${{ secrets.SN_TEST_INSTANCE }}
+            appSysID: ${{ secrets.SN_APP_SYSID }}
+            
+       outputs:
+        publishversion: ${{ steps.publish_app.outputs.newVersion }}
+        
+  change-acceleration:
+        name: Change-Acceleration
+        runs-on: ubuntu-latest
+        needs: publish
+        steps:
+           - name: ServiceNow DevOps Change
+             uses: ServiceNow/servicenow-devops-change@v1.34.2
+             with:
+              devops-integration-user-name: ${{ secrets.SN_DEVOPS_USER }}
+              devops-integration-user-password: ${{ secrets.SN_DEVOPS_PASSWORD }}
+              instance-url: ${{ secrets.SN_INSTANCE_URL }}
+              tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
+              context-github: ${{ toJSON(github) }}
+              job-name: 'Change-Acceleration'
+              change-request: '{"setCloseCode":"true","attributes":{"short_description":"Automated Software Deployment","description":"Automated Software Deployment.","assignment_group":"a715cd759f2002002920bde8132e7018","implementation_plan":"Software update is tested and results can be found in Test Summaries Tab; When the change is approved the implementation happens automated by the CICD pipeline within the change planned start and end time window.","backout_plan":"When software fails in production, the previous software release will be redeployed.","test_plan":"Testing if the software was successfully deployed"}}'
+              interval: '100'
+              timeout: '3600'  
+
+
+  deploytoacc:
+       name: Deploy to ACC
+       runs-on: ubuntu-latest
+       needs: change-acceleration
+       steps:      
+       - name: ServiceNow CI/CD Install App
+         continue-on-error: true
+         id: install_app
+         uses: ServiceNow/sncicd-install-app@2.0.0
+         with:
+          version: ${{ needs.publish.outputs.publishversion }}
+         env:
+          nowUsername: ${{ secrets.SN_USERNAME }}
+          nowPassword: ${{ secrets.SN_PASSWORD }}
+          nowInstallInstance: ${{ secrets.SN_ACC_INSTANCE }}
+          appSysID: ${{ secrets.SN_APP_SYSID }}
+          
+       outputs:
+        publishversion: ${{ needs.publish.outputs.publishversion }}
+        rollbackVersion: ${{steps.install_app.outputs.rollbackVersion}}    
+  
+  
