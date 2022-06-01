@@ -13,73 +13,49 @@ pipeline {
    }
    environment {
 	 SCANNER_HOME = tool 'sonarScanner'
-	}  
+  }
   stages {
        stage('Build &1') {
            steps {
-              
-              //sh 'mvn -B -DskipTests clean compile'
-			sh 'mvn clean install -DskipTests=true'
+	   	sh 'mvn clean install -DskipTests=true'
            }
        }
        stage('Test &2') {
-           steps {
-              
-              sh 'mvn test -DskipTests=true'
-           }
-           post {
-             always {
-                junit "**/target/surefire-reports/*.xml"
-             }
-           }
+	   steps {
+	      sh 'mvn test -DskipTests=true'
+	   }
+	   post {
+	     always {
+		junit "**/target/surefire-reports/junitreports/*.xml"
+	     }
+	   }
        }
 
        stage('CodeCoverage &3') {
-                 steps {
-                    
-                    echo 'sonar summaries....'
-                    sonarSummaries()                    
-                 }
+	 steps {
+	    echo 'sonar summaries....'
+	    //sonarSummaries()                    
+	 }
       }
       
       stage('Artifacts&Packages &4') {
-                 steps {
-                    
-                    echo 'Deploying the change....'
-                    snDevOpsArtifact(artifactsPayload: """{"artifacts": [{"name": "${artifactname}", "version": "1.${env.BUILD_NUMBER}","semanticVersion": "1.${env.BUILD_NUMBER}.0","repositoryName": "${repoName}"}],"branchName":"master"}""")
-          			snDevOpsPackage(name: "${pkgName}-${env.BUILD_NUMBER}", artifactsPayload: """{"artifacts":[{"name": "${artifactname}", "version": "1.${env.BUILD_NUMBER}", "repositoryName": "${repoName}"}], "branchName":"master"}""")
- 
-                    //snDevOpsArtifact(artifactsPayload: """{"artifacts": [{"name": "${artifactname}", "version": "1.${env.BUILD_NUMBER}-PATCH","semanticVersion": "1.${env.BUILD_NUMBER}.0-PATCH","repositoryName": "${repoName}"}],"branchName":"master"}""")
-           			//snDevOpsPackage(name: "${pkgName}-${env.BUILD_NUMBER}", artifactsPayload: """{"artifacts":[{"name": "${artifactname}", "version": "1.${env.BUILD_NUMBER}-PATCH", "repositoryName": "${repoName}"}], "branchName":"master"}""")
-                    
-                 }
+	 steps {
+	    echo 'Deploying the change....'
+	    snDevOpsArtifact(artifactsPayload: """{"artifacts": [{"name": "${artifactname}", "version": "1.${env.BUILD_NUMBER}","semanticVersion": "1.${env.BUILD_NUMBER}.0","repositoryName": "${repoName}"}],"branchName":"master"}""")
+	    snDevOpsPackage(name: "${pkgName}-${env.BUILD_NUMBER}", artifactsPayload: """{"artifacts":[{"name": "${artifactname}", "version": "1.${env.BUILD_NUMBER}", "repositoryName": "${repoName}"}], "branchName":"master"}""")
+	 }
       }
       stage('Deploy &5') {
-                 steps {
-                    
-                    echo 'Deploying the change....'
-                    snDevOpsChange(ignoreErrors:false)
- 
-                    //snDevOpsArtifact(artifactsPayload: """{"artifacts": [{"name": "${artifactname}", "version": "1.${env.BUILD_NUMBER}","semanticVersion": "1.${env.BUILD_NUMBER}.0","repositoryName": "${repoName}"}],"branchName":"master"}""")
-           			//snDevOpsPackage(name: "${pkgName}-${env.BUILD_NUMBER}", artifactsPayload: """{"artifacts":[{"name": "${artifactname}", "version": "1.${env.BUILD_NUMBER}", "repositoryName": "${repoName}"}], "branchName":"master"}""")
-                    
-                 }
-      }   
-
- }
- 
+	 steps {
+	    echo 'Deploying the change....'
+	    snDevOpsChange(ignoreErrors:false)
+	 }
+      }
+  }
 }
 
 def sonarSummaries() {
-f
-   //withSonarQubeEnv('Sonar_Cloud') {
-       //sh '${SCANNER_HOME}/bin/sonar-scanner -Dproject.settings=${SCANNER_HOME}/conf/qa-sonar-scanner-cloud.properties'
-   
-	//}
-	
     withSonarQubeEnv('sonarQube_local') {
-       	sh '${SCANNER_HOME}/bin/sonar-scanner -Dproject.settings=${SCANNER_HOME}/conf/qa-sonar-scanner.properties'
-   		// sh '${SCANNER_HOME}/bin/sonar-scanner -Dproject.settings=${SCANNER_HOME}/conf/sonar-scanner.properties'
-	}
-	
+    	sh '${SCANNER_HOME}/bin/sonar-scanner -Dproject.settings=${SCANNER_HOME}/conf/qa-sonar-scanner.properties'
+    }
 } // end of def sonarsummaries
