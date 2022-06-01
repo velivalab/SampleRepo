@@ -24,11 +24,11 @@ pipeline {
 	   steps {
 	      sh 'mvn test -DskipTests=true'
 	   }
-	   post {
-	     always {
-		junit "**/target/surefire-reports/junitreports/*.xml"
-	     }
-	   }
+	   //post {
+	     //always {
+		//junit "**/target/surefire-reports/junitreports/*.xml"
+	     //}
+	   //}
        }
 
        stage('CodeCoverage &3') {
