@@ -48,7 +48,7 @@ pipeline {
       stage('Deploy &5') {
 	 steps {
 	    echo 'Deploying the change....'
-	    snDevOpsChange(ignoreErrors:false)
+	    snDevOpsChange(ignoreErrors:true)
 	 }
       }
   }
