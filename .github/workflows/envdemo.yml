@@ -11,16 +11,6 @@ jobs:
     environment: PROD
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-      
-      - name: Setup JDK 11 for Sonar Cloud
-        uses: actions/setup-java@v1
-        with:
-            java-version: 11
-      
-      - name: Maven Build
-        run: mvn clean install -DskipTests=true
-      
+    
       - name: Deployment 
         run: echo Run PROD deployment.
