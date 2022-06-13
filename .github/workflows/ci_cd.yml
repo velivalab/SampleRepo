@@ -21,4 +21,7 @@ jobs:
       run: mvn clean install -Dmaven.test.failure.ignore=true surefire-report:report
       
     - name: List Directory
-      run: ls -ltr ../
+      run: ls -ltr ../SampleRepo
+      
+    - name: List Workspace
+      run: echo ${{ github.workspace }}
