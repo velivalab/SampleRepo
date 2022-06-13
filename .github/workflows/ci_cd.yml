@@ -24,4 +24,4 @@ jobs:
       run: ls -ltr ../SampleRepo
       
     - name: List Workspace
-      run: echo ${{ github.workspace }}
+      run: ls -tlr /home/runner/work/SampleRepo/SampleRepo
