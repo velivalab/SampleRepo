@@ -20,14 +20,14 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
       
-    - name: Publish Unit Test Results
-      uses: EnricoMi/publish-unit-test-result-action@v1
-      if: always()
+    - name: Upload Unit Test Results
+      uses: actions/upload-artifact@v2
       with:
-        files: target/surefire-reports/junitreports/*.xml
+        name: testng-results.xml 
+        path: target/surefire-reports/testng-results.xml 
         
     - name: Upload Report
-      uses: 'actions/upload-artifact@v2'
+      uses: actions/upload-artifact@v2
       with:
         name: covegateReport.xml
         path: target/site/jacoco/jacoco.xml
@@ -48,16 +48,10 @@ jobs:
         generate-branches-badge: true
         jacoco-csv-file: target/site/jacoco/jacoco.csv
         
-  staging:
-    needs: build
-    name: Deploy to staging
-    environment:
-      name: staging
-    runs-on: ubuntu-latest
-    steps:
-    # Download artifacts
-    - name: Download artifacts
-      uses: actions/download-artifact@v2
+    - name: Publish Unit Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v1
+      if: always()
       with:
-        name: covegateReport.xml
-      
+        files: target/surefire-reports/junitreports/*.xml
+        
+  
