@@ -24,4 +24,4 @@ jobs:
       run: ls -ltr ../SampleRepo
       
     - name: List Workspace
-      run: ls -tlr /home/runner/work
+      run: ls -tlr /home/runner/work/_actions
