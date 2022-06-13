@@ -23,7 +23,7 @@ jobs:
     - name: Upload Build Artifact
       uses: actions/upload-artifact@v2
       with:
-        name: testng-results.xml 
+        name: samplerepo.jar
         path: target/samplerepo-0.0.1-SNAPSHOT.jar
         
     - name: Upload Unit Test Results
