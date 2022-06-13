@@ -20,9 +20,5 @@ jobs:
     - name: Build with Maven
       run: mvn clean install -Dmaven.test.failure.ignore=true surefire-report:report
       
-    - name: Upload Unit Test Results
-      uses: actions/upload-artifact@v2
-      with:
-        name: testng-results.xml 
-        path: target/surefire-reports/testng-results.xml
-        
+    - name: List Directory
+      run: ls -ltr ../
