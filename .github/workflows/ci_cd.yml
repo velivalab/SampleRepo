@@ -20,8 +20,14 @@ jobs:
     - name: Build with Maven
       run: mvn clean install -Dmaven.test.failure.ignore=true surefire-report:report
       
-    - name: List Directory
-      run: ls -ltr ../SampleRepo
-      
-    - name: List Workspace
-      run: ls -tlr /home/runner/work/_actions/actions
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: testng-results.xml 
+        path: target/samplerepo-0.0.1-SNAPSHOT.jar
+        
+    - name: Upload Unit Test Results
+      uses: actions/upload-artifact@v2
+      with:
+        name: testng-results.xml 
+        path: target/surefire-reports/testng-results.xml
