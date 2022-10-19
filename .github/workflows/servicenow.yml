@@ -1,0 +1,74 @@
+name: ServiceNow Test
+
+
+on:
+  workflow_dispatch:
+   
+
+jobs:
+  Tests:
+    name: JestUnitTests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js v16
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+
+      - name: Install Yarn
+        run: npm install --global yarn
+
+      - name: Restore packages with Yarn
+        run: yarn
+
+      - name: install jest-Unit
+        run: npm install jest-junit
+
+      - name: Run Tests
+        run: yarn test:ci
+
+      - name: Show summary
+        run: cat junit.xml
+
+      - name: ServiceNow DevOps Unit Test Results
+        uses: ServiceNow/servicenow-devops-test-report@v1.34.2
+        with:
+          devops-integration-user-name: ${{ secrets.SN_DEVOPS_USER }}
+          devops-integration-user-password: ${{ secrets.SN_DEVOPS_PASSWORD }}
+          instance-url: ${{ secrets.SN_INSTANCE_URL }}
+          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
+          context-github: ${{ toJSON(github) }}
+          job-name: 'JestUnitTests'
+          xml-report-filename: web/junit.xml
+
+
+  ChangeApproval:
+    name: ServiceNow Change Approval
+    needs: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: ServiceNow Change
+        uses: ServiceNow/servicenow-devops-change@main
+        with:
+          devops-integration-user-name: ${{ secrets.SN_DEVOPS_USER }}
+          devops-integration-user-password: ${{ secrets.SN_DEVOPS_PASSWORD }}
+          instance-url: ${{ secrets.SN_INSTANCE_URL }}
+          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
+          context-github: ${{ toJSON(github) }}
+          job-name: 'ServiceNow Change Approval'
+          change-request: '{"setCloseCode":"true","attributes":{ "short_description":"Automated Software Deployment","description":"Automated Software Deployment.","assignment_group": {"name": "GitHub CICD Approval Group"},"cmdb_ci": {"name": "ServiceNow Enterprise Services for GitHub Actions"},"implementation_plan":"Software update is tested and results can be found in Test Summaries Tab; When the change is approved the implementation happens automated by the CICD pipeline within the change planned start and end time window.","backout_plan":"When software fails in production, the previous software release will be re-deployed.","test_plan":"Testing if the software was successfully deployed"}}'
+          interval: '50'
+          timeout: '3600'
+
+
+  DeployProd:
+    name: Deploy to Prod
+    needs: ChangeApproval
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deployment 
+        run: echo Run PROD deployment
