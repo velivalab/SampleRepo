@@ -24,9 +24,9 @@ jobs:
       uses: ServiceNow/servicenow-devops-sonar@v1.34.2
       with:
           devops-integration-user-name: ${{ secrets.SN_DEVOPS_USER }}
-          devops-integration-user-password: ${{ secrets.SN_DEVOPS_PASSWD }}
-          instance-url: ${{ secrets.SN_INSTANCE_NAME }}
-          tool-id: ${{ secrets.SN_ORCH_TOOL_ID }}
+          devops-integration-user-password: ${{ secrets.SN_DEVOPS_PASSWORD }}
+          instance-url: ${{ secrets.SN_INSTANCE_URL }}
+          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           job-name: 'Build'
           context-github: ${{ toJSON(github) }}
           sonar-host-url: ${{ secrets.SONAR_URL }}
