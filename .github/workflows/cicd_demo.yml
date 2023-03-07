@@ -1,8 +1,10 @@
 
 name: cicd_demo
 
+
 on:
   workflow_dispatch:
+
 
 jobs:
   build:
@@ -31,4 +33,4 @@ jobs:
           context-github: ${{ toJSON(github) }}
           sonar-host-url: ${{ secrets.SONAR_URL }}
           sonar-project-key: ${{ secrets.SONAR_PROJECT_KEY }}
-      
+          
