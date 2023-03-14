@@ -1,3 +1,3 @@
 # SampleRepo
 
-## Testing GHA
+## Testing GitHub Actions
