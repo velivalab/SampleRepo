@@ -1,8 +1,6 @@
 name: change_env
 
 on:
-  pull_request:
-    branches: ['master']
   workflow_dispatch:
 
 jobs:
@@ -17,9 +15,6 @@ jobs:
         uses: actions/setup-java@v1
         with:
             java-version: 11
-      
-      - name: Maven Build
-        run: mvn clean install -DskipTests=true
       
   deploy:
     environment: PROD
