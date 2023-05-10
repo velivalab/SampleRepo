@@ -1,8 +1,6 @@
 name: customchange2
 
 on:
-  pull_request:
-    branches: ['master']
   workflow_dispatch:
 
 
