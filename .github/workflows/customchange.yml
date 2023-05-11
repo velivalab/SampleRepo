@@ -3,7 +3,6 @@ name: customchange
 on:
   workflow_dispatch:
 
-
 jobs:
   change:
     name: Change Request
@@ -23,7 +22,6 @@ jobs:
           interval: '100'
           timeout: '3600'
           deployment-gate: '{"environment":"demo","jobName":"Deploy"}'
-
 
   deploy:
     name: Deploy
