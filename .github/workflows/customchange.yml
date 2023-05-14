@@ -7,7 +7,6 @@ jobs:
   change:
     name: Change Request
     runs-on: ubuntu-latest
-    environment: demo
     steps:     
       - name: ServiceNow DevOps Change Attributes
         uses: velivalab/servicenow-devops-change@depgate
